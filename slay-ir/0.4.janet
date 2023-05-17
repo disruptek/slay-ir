@@ -2,10 +2,7 @@
 # slay/ir 0.4
 #
 
-(import spork/json :as json)
-(use slay-ir)
-
-(varfn ir-encode
+(varfn encode
   `create something we can turn into valid json slay/ir`
   [value]
   (match (type value)
@@ -22,25 +19,25 @@
     :nil
       "none:"                 # we'll perform the nil->:null ourselves
     :array
-      @{:list (map ir-encode value)}
+      @{:list (map encode value)}
     :tuple
-      @{:tuple (map ir-encode value)}
+      @{:tuple (map encode value)}
     :table
-      @{:dict (pairs (table ;(map ir-encode (kvs value))))}
+      @{:dict (pairs (table ;(map encode (kvs value))))}
     :struct
-      @{:dict (pairs (table ;(map ir-encode (kvs value))))}
+      @{:dict (pairs (table ;(map encode (kvs value))))}
     other
       (error (string/format "unsupported input: %q" other))))
 
-(varfn ir-decode [] nil)  # mutual recursion idiom
+(varfn decode [] nil)  # mutual recursion idiom
 
-(defn- ir-decode-list
+(defn- decode-list
   `a place to debug/extend list decoding`
   [value]
   (case (type value)
     :array value
     :tuple value
-    (array ;(ir-decode value))))
+    (array ;(decode value))))
 
 (defn- flatten1
   `flatten a list of lists into a single list whatfer table creation`
@@ -50,7 +47,7 @@
     @[key value ;(flatten1 tail)]
     [] @[]))
 
-(defn- ir-decode-ptr
+(defn- decode-ptr
   `currently a no-op`
   [value]
   (let [[scheme path] (string/split ":" value 0 2)]
@@ -62,30 +59,30 @@
       "none" :null
       (error (string/format "unsupported pointer scheme: %q" scheme)))))
 
-(defn- ir-decode-extension
+(defn- decode-extension
   `decode a so-called slay "extension" type`
   [js]
   (match js
     {:none value}
       :null
     {:ptr value}
-      (ir-decode-ptr (ir-decode value))
+      (decode-ptr (decode value))
     {:str value}
-      (string (ir-decode value))
+      (string (decode value))
     {:dict [[key value] & rest]}
-      (table (ir-decode key) (ir-decode value) ;(flatten1 rest))
+      (table (decode key) (decode value) ;(flatten1 rest))
     {:list value}
-      (array ;(ir-decode value))
+      (array ;(decode value))
     {:tuple value}
-      (tuple ;(ir-decode value))
+      (tuple ;(decode value))
     {:set value}
-      (tuple ;(ir-decode value))
+      (tuple ;(decode value))
     other
       (do
         (print (string/format "unsupported extension: %q" other))
         other)))
 
-(varfn ir-decode
+(varfn decode
   `decode any json input into native values`
   [js]
   (match (type js)
@@ -101,28 +98,18 @@
           false
         "none:"
           :null
-        (ir-decode-ptr js))
+        (decode-ptr js))
     :boolean
       js
     :nil
       nil
     :array                          # arrays are native
-      (map ir-decode js)
+      (map decode js)
     :tuple                          # unlikely, but we'll support it
-      (tuple ;(map ir-decode js))
+      (tuple ;(map decode js))
     :table                          # slay "extensions"
-      (ir-decode-extension js)
+      (decode-extension js)
     :struct                         # unlikely, but we'll support it
-      (ir-decode-extension js)
+      (decode-extension js)
     other
       (error (string/format "unsupported input: %q" other))))
-
-(defn encode-json
-  `encode a value into slay/ir json`
-  [value]
-  (json/encode (ir-encode value)))
-
-(defn decode-json
-  `decode a value from slay/ir json`
-  [js]
-  (ir-decode (json/decode js true false)))
