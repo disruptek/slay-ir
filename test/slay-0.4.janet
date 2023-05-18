@@ -1,4 +1,3 @@
-(use spork/test)
 (use slay-ir/0.4)
 
 (defn round-trip

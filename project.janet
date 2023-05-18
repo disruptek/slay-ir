@@ -11,5 +11,6 @@
 (declare-source
   :prefix "slay-ir"
   :source ["slay-ir/init.janet"
+           "slay-ir/uri-encoding.janet"
            "slay-ir/0.4.janet"
            "slay-ir/0.6.janet"])
