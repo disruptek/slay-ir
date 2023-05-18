@@ -1,5 +1,5 @@
 (defn- decode-hex [arg]
-  (let [result (string/from-bytes (parse (string "0x" arg)))]
+  (let [result (string/from-bytes (scan-number arg 16))]
     #(print (string/format "%%%s -> %s" arg result))
     result))
 
