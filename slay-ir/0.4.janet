@@ -73,7 +73,9 @@
     {:ptr value}
       (decode-ptr (decode value))
     {:str value}
-      (string (decode value))
+      (case (type value)
+        :string value
+        (string (decode value)))
     {:dict [[key value] & rest]}
       (table (decode key) (decode value) ;(flatten1 rest))
     {:list value}
