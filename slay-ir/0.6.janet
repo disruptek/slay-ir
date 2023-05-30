@@ -74,8 +74,8 @@
       (case (type value)
         :string value
         (string (decode value)))
-    {:dict [[key value] & rest]}
-      (table (decode key) (decode value) ;(flatten1 rest))
+    {:dict value}
+      (table ;(map decode (flatten1 value)))
     {:list value}
       (array ;(decode value))
     {:tuple value}

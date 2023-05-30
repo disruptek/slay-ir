@@ -24,4 +24,4 @@
 (assert (deep= (encode ["a" nil]) @{:tuple @["a" {:none 0}]}))
 (assert (deep= (decode @{:tuple @["a" {:none 0}]}) ["a" :null]))
 (assert (deep= (encode {"a" @[true nil]}) @{:dict @[["a" @[true {:none 0}]]]}))
-(assert (deep= (decode {:dict [["a" [true {:none 0}]]]}) @{"a" [true :null]}))
+(assert (deep= (decode {:dict [["b" 1] ["a" [true {:none 0}]]]}) @{"b" 1 "a" [true :null]}))
