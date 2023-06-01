@@ -53,7 +53,7 @@
   [pointer]
   (let [[scheme path] (string/split ":" pointer 0 2)]
     (case scheme
-      "str"      path
+      "str"      (url/decode path)
       "int"      (parse path)
       "float"    (parse path)
       "bool"     (parse (string/ascii-lower path))
