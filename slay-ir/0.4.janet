@@ -16,7 +16,7 @@
         (string "float:" value)
         (string "int:" value))
     :string
-      (string "str:" value)
+      (string "str:" (url/encode value))
     :boolean
       (if value "bool:True" "bool:False")
     :nil
@@ -55,7 +55,7 @@
   [pointer]
   (let [[scheme path] (string/split ":" pointer 0 2)]
     (case scheme
-      "str"      path
+      "str"      (url/decode path)
       "int"      (parse path)
       "float"    (parse path)
       "bool"     (parse (string/ascii-lower path))
